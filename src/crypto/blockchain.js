@@ -17,15 +17,7 @@ NetInfo.fetch().then(state => {
 });
 
 
-// UTIL START
-export const createAccount = () => {
-    const web3 = new Web3('http://localhost:7545');
-    const newWallet = web3.eth.accounts.wallet.create(1);
-    const newAccount = newWallet[0];
-    console.log(newAccount);
-    yoyo = JSON.stringify(newAccount)
-    return(yoyo);
-}
+
 
 function pretty_print(json_data) {
     var pretty_text = JSON.stringify(json_data, null, 2);
@@ -77,8 +69,6 @@ export function isWeb3Listening() {
 
 export function getTxsForAccount(user_account_number) {
     return new  Promise(function(resolve, reject) {
-        // const request = axios.get(url)
-        // request
         const url  = `${CONSTANTS.ETHERSCAN_API_URL}?module=account&action=txlist&address=${user_account_number}&startblock=0&endblock=99999999&page=1&offset=1000&sort=asc&apikey=${CONSTANTS.ETHERSCAN_API_KEY}`;
         axios.get(url)
             .then(result => {
@@ -101,11 +91,13 @@ export function getTxsForAccount(user_account_number) {
                         appropvalMethodId = '0x095ea7b3' // also see: setApprovalForAll
                         if(input.startsWith(appropvalMethodId)) {
                             ap_count += 1
-                            console.log('ACCT: ', ap_count);
+                            // console.log('----- ----- ----- ----- ----- ----- -----  ACCT: ', ap_count);
+                            // pretty_print(tx)
                             txHash = tx.hash;
                             contractAddr = tx.to;
 
                             const tx_object = {
+                                owner_addr: user_account_number,
                                 contract_name: '',
                                 ap_count: ap_count,
                                 tx_hash: txHash,
@@ -114,7 +106,8 @@ export function getTxsForAccount(user_account_number) {
                                 timestamp: tx.timeStamp,
                                 func: '',
                                 delegate_to: '',
-                                amount: 777
+                                amount: 777,
+                                amount_display: 'tbd'
                             };
                             contract_and_input_all_objects.push(tx_object)
                         }
@@ -124,23 +117,26 @@ export function getTxsForAccount(user_account_number) {
                 console.log('ACCT: TOTAL TX FOUND --------->', tx_count);
                 console.log('ACCT: TOTAL AP FOUND --------->', ap_count);
                 console.log('----------------------------------------')
-
                 resolve(contract_and_input_all_objects)
             }) // end of .then()
             .catch(error => {
-                return(error)
+                reject(error)
             })
         }); /////// end of promise
 } // end func
 
 
-var final_table = []
+/*
+    getApprovalsForTxs()
+        - contract_and_input_all is a passed by reference object.
+        - Updates to each row are reflected in the table (UI) when updated.
+*/
 export async function getApprovalsForTxs(contract_and_input_all) {
-    final_table = []
     for (let i = 0; i < contract_and_input_all.length; i++) {
         await sleep(300) // rate limit
         row = contract_and_input_all[i];
 
+        owner_addr = row.owner_addr;
         contractAddr = row.contract_addr;
         ap_count = row.ap_count;
         tx_hash = row.tx_hash;
@@ -153,15 +149,47 @@ export async function getApprovalsForTxs(contract_and_input_all) {
                 contractABI = JSON.parse(abi);
                 abiDecoder.addABI(contractABI);
                 const decodedData = abiDecoder.decodeMethod(input);
+                // console.log('pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp 111')
+                // const target1_addr = '0xe2993904204ab04e9579a5bf0a847fc6dca1a830'; // ORIG 7 items
+
+                // addrTHIS = '0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908';
+                // console.log('contractAddr', contractAddr);
+                var contract888 = new web3.eth.Contract(contractABI, contractAddr);
+                contract888.methods.allowance(owner_addr, contractAddr).call()
+                .then(result => {
+                    console.log('-------------------------------------------> Allowance = ', result);
+                })
+                .catch(error => {
+                    console.error('-------------------------------------------> Allowance ERROR:', error)
+                })
+
+                // Print all function names with 'allowance'
+                // for(i in contractABI) {
+                //     name = contractABI[i].name //).toLowerCase()
+                //     // console.log(name)
+                //     if(name !== undefined) {
+                //         if((name.toLowerCase()).includes('allowance')) {
+                //             console.log(name)
+                //         }
+                //     }
+                // }
 
                 row.func = decodedData.name;
                 row.delegate_to = decodedData.params[0].value;
-                row.amount = decodedData.params[1].value
+                let amount = decodedData.params[1].value;
+                let amount_display = '';
 
-                console.log('DETAIL: ', ap_count, result.data.message);
-                // console.log(ap_count + ' TX: ' + tx_hash)
-                // console.log(decodedData.name + ': ' + decodedData.params[0].value + ' ---> ' + decodedData.params[1].value);
-                final_table.push(row)
+                if(amount == CONSTANTS.MAX_INT) {
+                    amount_display = 'unltd';
+                } else if (amount > 1000000000) {
+                    amount_display = 'large';
+                } else {
+                    amount_display = amount;
+                }
+                row.amount = amount;
+                row.amount_display = amount_display;
+
+                console.log('DETAIL: ', ap_count, amount);
                 return('j2222222222345')
             })
 
@@ -170,11 +198,10 @@ export async function getApprovalsForTxs(contract_and_input_all) {
             });
     } // end of for loop
 
+
+    console.log('---- END LOOP ---- DONE DONE DONE')
     await sleep(2000)
-    console.log('-------------------------------------------- END LOOP    ---- DONE DONE DONE')
-    // console.log('22222222222222222222222222222222222222222222222222222222 bbb`');
     // pretty_print(final_table)
-    // console.log('22222222222222222222222222222222222222222222222222222222 bbb`');
 
     //////////////getContractName(final_table)
 
@@ -182,65 +209,162 @@ export async function getApprovalsForTxs(contract_and_input_all) {
 }
 
 //////////////////////////////
+var final_table222 = []
+export async function getContractName(contract_and_input_all) {
+    final_table222 = []
+    for (let i = 0; i < contract_and_input_all.length; i++) {
+        await sleep(300)
+        row = contract_and_input_all[i];
+        contractAddr = row.contract_addr;
+        ap_count = row.ap_count;
+        tx_hash = row.tx_hash;
+        input = row.input
 
+        contract_source_url  = `${CONSTANTS.ETHERSCAN_API_URL}?module=contract&action=getsourcecode&address=${contractAddr}&apikey=${CONSTANTS.ETHERSCAN_API_KEY}`
+        const request = axios.get(contract_source_url)
+        request
+            .then(result => {
+                contract = result.data.result;
+                // console.log('33333333333333333333333333333333333333333333333333333333 aaa');
+                // pretty_print(contract)
+                // console.log('33333333333333333333333333333333333333333333333333333333 bbb');
+                console.lo
+                name = contract[0].ContractName;
+                // pretty_print(contract);
+                // console.log('---', result.data.message, ap_count);
+                console.log(ap_count, 'Contract name: ', name);
+                row.contract_name = name; // add name to object so we have in table at end
 
-/*
-export function doSomethingAsync(row) {
-     return new Promise((resolve) => {
-         contractAddr = row.contract_addr;
-         ap_count = row.ap_count;
-         tx_hash = row.tx_hash;
-         input = row.input
+                final_table222.push(row)
+            }) // end of .then()
+            .catch(error => {
+                console.error('ccccccc error:', error)
+            })
+    } // end of for loop
+    await sleep(3000)
 
-         abi_url  = `${CONSTANTS.ETHERSCAN_API_URL}?module=contract&action=getabi&address=${contractAddr}&apikey=${CONSTANTS.ETHERSCAN_API_KEY}`
-         request = axios.get(abi_url) //request = await axios.get(abi_url)
-             .then(result => {
-                 abi = result.data.result;
-                 contractABI = JSON.parse(abi);
-                 abiDecoder.addABI(contractABI);
-                 const decodedData = abiDecoder.decodeMethod(input);
+    // console.log('33333333333333333333333333333333333333333333333333333333 aaa');
+    // console.log(final_table222)
+    // console.log('33333333333333333333333333333333333333333333333333333333 bbb');
 
-                 row.func = decodedData.name;
-                 row.delegate_to = decodedData.params[0].value;
-                 row.amount = decodedData.params[1].value
+    console.log('-------------------------------------------- END  LOOP 2222')
+    return('yoboom2222')
+}
 
-                 console.log('======>', result.data.message, ap_count);
-                 // console.log(ap_count + ' TX: ' + tx_hash)
-                 // console.log(decodedData.name + ': ' + decodedData.params[0].value + ' ---> ' + decodedData.params[1].value);
-                 resolve(result.data);
-             })
-             .catch(error => {
-                 console.error('delay error:', error)
-             });
-     });
-   }
-   */
-
-
-    function sleeper(ms) {
-      return function(x) {
-        return new Promise(resolve => setTimeout(() => resolve(x), ms));
-      };
+export function filterSettledApprovals(tableDataFull) {
+    filtered = []
+    for(let orig of tableDataFull) {
+        console.log('ORIG');
+        console.log(orig.tx_hash);
+        if  (orig.amount > 0 ){
+            console.log('ADD')
+            filtered.push(orig)
+        } else {
+            console.log('ELSE')
+            filtered = filtered.filter((short, index) => {
+                if(short.delegate_to == orig.delegate_to && short.contract_addr == orig.contract_addr) {
+                    console.log('----> BINGO')
+                    return(false);
+                }
+                return(true);
+            })
+        }
     }
+    console.log('FILTERED ');
+    for(row of filtered) {
+        console.log(row.tx_hash);
+    }
+    return(filtered)
+}
 
-   // export  function getApprovalsForTxs222(contract_and_input_all) {
-   //     return new Promise((resolve) => {
-   //         const promises = [];
-   //         // for (let i = 0; i < contract_and_input_all.length; i++) {
-   //         for (let i = 0; i < 3; i++) {
-   //             // await sleep(300) // rate limit
-   //             row = contract_and_input_all[i];
-   //             promises.push(doSomethingAsync(row));
-   //         }
-   //         Promise.all(promises)
-   //             .then((results) => {
-   //                 console.log('=====================');
-   //                 console.log('Promises', results.length);
-   //                 console.log('=====================');
-   //                 return(results);
-   //             })
-   //             .catch((e) => {
-   //                 console.log("OOOOPS --->", e);
-   //             });
-   //     })
-   //  }
+
+const unlimitedAllowance = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+export function anotherApproach(user_account_number) {
+    return new  Promise(function(resolve, reject) {
+        const url  = `${CONSTANTS.ETHERSCAN_API_URL}?module=account&action=txlist&address=${user_account_number}&startblock=0&endblock=99999999&page=1&offset=1000&sort=asc&apikey=${CONSTANTS.ETHERSCAN_API_KEY}`;
+        axios.get(url)
+            .then(result => {
+
+        let data = 'STUFF FROM GET: await request.get(query);'
+        let approveTransactions = [];
+        // let dataObj = JSON.parse(data.text).result;
+        let dataObj = result.data.result;
+
+            for(let tx of dataObj) {
+                if(tx.input.includes('0x095ea7b3')) {
+                    console.log('======================================================================================');
+                    let approveObj = {};
+
+                    approveObj.contract = web3.utils.toChecksumAddress(tx.to);
+                    approveObj.approved = web3.utils.toChecksumAddress("0x" + tx.input.substring(34, 74));
+                    console.log('approved', approveObj.approved)
+                    let allowance = tx.input.substring(74);
+                    if(allowance.includes(unlimitedAllowance)) {
+                        approveObj.allowance = "unlimited";
+                    } else {
+                        approveObj.allowance = "some";
+                        approveObj.allowanceUnEdited = allowance;
+                    }
+
+                    if(parseInt(allowance, 16) !== 0) {
+                        approveTransactions.push(approveObj);
+                    } else {
+                        // Remove all previous additions of this approval transaction as it is now cleared up
+                        approveTransactions = approveTransactions.filter((val, index) => {
+                            console.log('======================================================================', index);
+                            console.log('val.approved        ', val.approved);
+                            console.log('approveObj.approved ', approveObj.approved);
+                            console.log('------------');
+                            console.log('val.contract        ', val.contract);
+                            return !(val.approved === approveObj.approved && val.contract === val.contract);
+                        });
+                    }
+                }
+            }
+        console.log('a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2');
+        // console.log(approveTransactions);
+        for(i in approveTransactions) {
+            console.log('---------', i)
+            pretty_print(approveTransactions[i])
+        }
+    });
+});
+}
+
+otherApproachResults = {
+  "contract": "0xf4d2888d29D722226FafA5d9B24F9164c092421E",
+  "approved": "0xBcD7254A1D759EFA08eC7c3291B2E85c5dCC12ce",
+  "allowance": "unlimited"
+},
+{
+  "contract": "0x3b484b82567a09e2588A13D54D032153f0c0aEe0",
+  "approved": "0xEDd27C961CE6f79afC16Fd287d934eE31a90D7D1",
+  "allowance": "unlimited"
+},
+{
+  "contract": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "approved": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  "allowance": "unlimited"
+},
+{
+  "contract": "0xa6dD98031551C23bb4A2fBE2C4d524e8f737c6f7",
+  "approved": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  "allowance": "unlimited"
+},
+{
+  "contract": "0x0Bd2B9116f1e2f88E4FD4Cc0fcE3E15178de8Df5",
+  "approved": "0xc92B80Ffd48A944Be210961d0daD45D8eFcC992c",
+  "allowance": "some",
+  "allowanceUnEdited": "0000000000000000000000000000000000000000000000000e8a02bfecff4663"
+},
+{
+  "contract": "0xf4d2888d29D722226FafA5d9B24F9164c092421E",
+  "approved": "0x881D40237659C251811CEC9c364ef91dC08D300C",
+  "allowance": "unlimited"
+},
+{
+  "contract": "0x1E4EDE388cbc9F4b5c79681B7f94d36a11ABEBC9",
+  "approved": "0xc8C3CC5be962b6D281E4a53DBcCe1359F76a1B85",
+  "allowance": "some",
+  "allowanceUnEdited": "00000000000000000000000000000000000000000052b7d2dcc80cd2e4000000"
+}

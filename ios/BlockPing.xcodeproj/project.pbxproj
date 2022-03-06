@@ -118,6 +118,7 @@
 			children = (
 				13B07FAE1A68108700A75B9A /* BlockPing */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				8A0FB38227D3C8D60019A2D3 /* Fonts */,
 				00E356EF1AD99517003FC87E /* BlockPingTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -135,6 +136,13 @@
 				00E356EE1AD99517003FC87E /* BlockPingTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8A0FB38227D3C8D60019A2D3 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		E233CBF5F47BEE60B243DCF8 /* Pods */ = {
