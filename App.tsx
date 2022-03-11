@@ -65,9 +65,8 @@ const Tab = createBottomTabNavigator();
 
 
 const BaBar = () => (
-   <Appbar style={styles.bottom}>
-     <Appbar.Action icon="archive" onPress={() => console.log('Pressed archive')} />
-      <Appbar.Action icon="mail" onPress={() => console.log('Pressed mail')} />
+   <Appbar style={{justifyContent: 'flex-end' }}>
+     <Appbar.Action icon="information-outline"  onPress={() => console.log('app info/help')} />
     </Appbar>
 );
 

@@ -46,5 +46,8 @@ export default styles = StyleSheet.create({
     fontSize: 18,
     padding: 32,
     color: CONSTANTS.COLOR.BLUE_DARK
+  },
+  firstTitle: {
+    flex: 2,
   }
 });

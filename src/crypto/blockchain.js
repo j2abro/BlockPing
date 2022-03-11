@@ -91,10 +91,17 @@ export function getTxsForAccount(user_account_number) {
                         appropvalMethodId = '0x095ea7b3' // also see: setApprovalForAll
                         if(input.startsWith(appropvalMethodId)) {
                             ap_count += 1
-                            // console.log('----- ----- ----- ----- ----- ----- -----  ACCT: ', ap_count);
                             // pretty_print(tx)
                             txHash = tx.hash;
                             contractAddr = tx.to;
+
+                            var date = new Date(tx.timeStamp * 1000);
+                            let [utcdate, utctime] = date.toISOString().split('T')
+                            let [y, m, d] = utcdate.split('-');
+                            y = y.substring(2, 4)
+                            utcdate = y + '/' + m + '/' + d
+                            utctime = utctime.split('.')[0]
+                            let utcdatetime = utcdate + ' ' + utctime;
 
                             const tx_object = {
                                 owner_addr: user_account_number,
@@ -104,10 +111,11 @@ export function getTxsForAccount(user_account_number) {
                                 contract_addr: contractAddr,
                                 input: input,
                                 timestamp: tx.timeStamp,
+                                utcdatetime: utcdatetime,
                                 func: '',
                                 delegate_to: '',
                                 amount: 777,
-                                amount_display: 'tbd'
+                                amount_display: ''
                             };
                             contract_and_input_all_objects.push(tx_object)
                         }
