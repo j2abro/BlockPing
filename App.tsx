@@ -6,16 +6,20 @@
 import { LogBox } from 'react-native';
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you\'re using an old API with gesture components, check out new Gestures system!",
+  "EventEmitter.removeListener('change', ...): Method has been deprecated.",
+  "Module RNBackgroundFetch requires main queue setup since it overrides `init` but doesn't implement"
 ]);
-
-import * as React from 'react';
-import { AppRegistry, Text, View, SafeAreaView } from 'react-native';
+import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
+        DataTable, Card, FAB } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { AppRegistry, View, SafeAreaView, StyleSheet, Modal as RNModal } from 'react-native';
 import { NavigationContainer,
         DarkTheme as NavigationDarkTheme,
         DefaultTheme as NavigationDefaultTheme, } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from "@react-navigation/stack";
 // import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import InfoModalContent from './src/components/InfoModalContent';
 import {
   DarkTheme as PaperDarkTheme,
   DefaultTheme as PaperDefaultTheme,
@@ -32,13 +36,16 @@ import { name as appName } from './app.json';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import merge from 'deepmerge';
 import color from 'color';
-// Icon.loadFont(); // maybe don't need this
+import BackgroundTimer from 'react-native-background-timer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { startBackgroundTask, stopBackgroundTask } from './src/utils/BackgroundTimer';
 
 const CombinedDefaultTheme = merge(PaperDefaultTheme, NavigationDefaultTheme);
 const CombinedDarkTheme = merge(PaperDarkTheme, NavigationDarkTheme);
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
 
 // const theme = {
 //     ...DefaultTheme,
@@ -63,76 +70,82 @@ const Tab = createBottomTabNavigator();
 //   // },
 //   };
 
+export default function App() {
+const [modalVisible, setModalVisible] = useState(false);
+useEffect(() => { onAppLoad(); }, []);
 
-const BaBar = () => (
-   <Appbar style={{justifyContent: 'flex-end' }}>
-     <Appbar.Action icon="information-outline"  onPress={() => console.log('app info/help')} />
-    </Appbar>
-);
+  // On load check AsyncStorage and set swich
+  // This runs once: only after app full close (i.e. upswipe, not open from bg)
+  const onAppLoad = async () => {
+    try {
+      const switchState = await AsyncStorage.getItem(CONSTANTS.MONITOR_SHOULD_RUN_KEY);
+      if(switchState == CONSTANTS.TRUE) {
+        stopBackgroundTask(); // Stop first to ensure we don't have multiple tasks running
+        startBackgroundTask(); // Runs on page load. If settings show switch is on, restart.
+      }
+      else {
+        stopBackgroundTask(); // Maybe redundant
+      }
+    } catch(e) {
+      console.log('Error getting data: ', e)
+    }
+  }
 
-///////////////// BOTTOM NAV <start>
-const MainScreenRoute = () => {
-  return (
+  const TopBar = () => (
+     <Appbar style={{justifyContent: 'flex-end' }}>
+       <Appbar.Action icon="information-outline"
+       onPress={() => { setModalVisible(true) }} />
+      </Appbar>
+  );
+
+  const MainScreenRoute = () => {
+    return (
       <SafeAreaView>
-        <BaBar/>
+        <TopBar/>
+        <RNModal
+          animationType="slide"
+          transparent={false}
+          visible={modalVisible}
+          onRequestClose={() => {setModalVisible(!modalVisible);}}>
+            <InfoModalContent handleClose={setModalVisible}/>
+        </RNModal>
         <MainScreen />
       </SafeAreaView>
     )
+  } // end MainScreenRoute()
+
+  const SettingsScreenRoute = () => {
+    return (
+      <SafeAreaView>
+        <TopBar/>
+        <SettingsScreen />
+      </SafeAreaView>
+      )
   }
-const SettingsScreenRoute = () => {
-  return (
-    <SafeAreaView>
-      <BaBar/>
-      <SettingsScreen />
-    </SafeAreaView>
-    )
-}
 
-const BottomTabBar = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'mainScreen', title: 'Main', icon: 'camera' },
-    { key: 'SettingsScreen', title: 'Settings', icon: 'album' },
-  ]);
-  const renderScene = BottomNavigation.SceneMap({mainScreen: MainScreenRoute, SettingsScreen: SettingsScreenRoute,});
-  return (
-   <BottomNavigation
-     navigationState={{ index, routes }}
-     onIndexChange={setIndex}
-     renderScene={renderScene}
-   />
- );
-};
-///////////////// BOTTOM NAV <end>
+  const BottomTabBar = () => {
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+      { key: 'mainScreen', title: 'Main', icon: 'camera' },
+      { key: 'SettingsScreen', title: 'Settings', icon: 'album' },
+    ]);
+    const renderScene = BottomNavigation.SceneMap({mainScreen: MainScreenRoute, SettingsScreen: SettingsScreenRoute,});
 
+    return (
+     <BottomNavigation
+       navigationState={{ index, routes }}
+       onIndexChange={setIndex}
+       renderScene={renderScene}
+     />
+    );
+  }; // end BottomTabBar()
 
-
-export default function App() {
   return (
     <PaperProvider theme={CombinedDefaultTheme}>
       <NavigationContainer theme={CombinedDefaultTheme}>
         <BottomTabBar/>
       </NavigationContainer>
     </PaperProvider>
+
   );
-}
-
-// AppRegistry.registerComponent(appName, () => Main); // recommended by rnpaper
-
-
-
-
-
-// const MainScreenNavigator = () => {
-//     return(
-//         <Stack.Navigator>
-//             <Stack.Screen options={{headerShown: false}} name="Main234" component={MainScreen} />
-//             <Stack.Screen name="ModalDetailScreen" component={ModalDetailScreen} />
-//         </Stack.Navigator>
-//     )
-// }
-// < BottomTabBar /> replaced all THIS
-// <Tab.Navigator>
-//     <Tab.Screen icon='rocket' name="MainTabz" component={MainScreenNavigator} />
-//     <Tab.Screen name="Settings" component={SettingsScreen} />
-// </Tab.Navigator>
+} // end App()

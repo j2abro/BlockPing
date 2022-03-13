@@ -21,6 +21,17 @@ export function trimString(str, len) {
   return(trimmed)
 }
 
+export function getUtcDateTime() {
+  var date = new Date(tx.timeStamp * 1000);
+  let [utcdate, utctime] = date.toISOString().split('T')
+  let [y, m, d] = utcdate.split('-');
+  y = y.substring(2, 4)
+  utcdate = y + '/' + m + '/' + d
+  utctime = utctime.split('.')[0]
+  let utcdatetime = utcdate + ' ' + utctime;
+  return(utcdatetime)
+}
+
 export const AlertDialogBox = ({ visible, onChangeVisible, title, message }) => {
   return (
     <Provider>

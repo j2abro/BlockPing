@@ -4,7 +4,7 @@
 import Web3 from 'web3';
 import axios from 'axios';
 import NetInfo from "@react-native-community/netinfo";
-import { sleep } from '../utils/Utils'
+import { sleep, getUtcDateTime } from '../utils/Utils'
 import CONSTANTS from '../utils/Constants'
 
 
@@ -95,13 +95,7 @@ export function getTxsForAccount(user_account_number) {
                             txHash = tx.hash;
                             contractAddr = tx.to;
 
-                            var date = new Date(tx.timeStamp * 1000);
-                            let [utcdate, utctime] = date.toISOString().split('T')
-                            let [y, m, d] = utcdate.split('-');
-                            y = y.substring(2, 4)
-                            utcdate = y + '/' + m + '/' + d
-                            utctime = utctime.split('.')[0]
-                            let utcdatetime = utcdate + ' ' + utctime;
+                            let utcdatetime = getUtcDateTime();
 
                             const tx_object = {
                                 owner_addr: user_account_number,
@@ -122,10 +116,16 @@ export function getTxsForAccount(user_account_number) {
                     }
                 } // end of for(tx...)
 
+                const return_object  = {
+                    tx_object: contract_and_input_all_objects,
+                    tx_count: tx_count,
+                    ap_count: ap_count
+                  }
                 console.log('ACCT: TOTAL TX FOUND --------->', tx_count);
                 console.log('ACCT: TOTAL AP FOUND --------->', ap_count);
                 console.log('----------------------------------------')
-                resolve(contract_and_input_all_objects)
+                // resolve(contract_and_input_all_objects)
+                resolve(return_object)
             }) // end of .then()
             .catch(error => {
                 reject(error)

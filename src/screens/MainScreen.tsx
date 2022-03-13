@@ -76,29 +76,11 @@ const getStuff = () => {
   const onRowSelect = (ap_count) => {
     tableDataFull.forEach((element, index, array) => {
       if(element.ap_count == ap_count) {
-        console.log('BOOM -----------------aaa');
-        console.log(index, element);
-        console.log('BOOM -----------------bbb');
-        // yo = JSON.stringify(element, null, 2);
-        //
         setTXContent(element);
         setDisplayTXDetailVisible(true);
       }
     });
   };
-
-  const getTX = () => {
-    return('hello')
-  };
-
-  // <Button mode="outlined" onPress={() => refreshTable()}>Load</Button>
-  //
-  // const refreshTable = () => {
-  //   console.log('1111 refresh aaa ', refreshFlag);
-  //   setRefreshFlag(refreshFlag + 1);
-  //   console.log('1111 refresh bbb ', refreshFlag);
-  //   // updateAccountAddress();
-  // }
 
   const getFilteredTableList = () => {
     console.log('getFilteredTableList', toggleFull);
@@ -123,6 +105,8 @@ const getStuff = () => {
   // const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'; //j2
   const startScan = () => {
     console.log('ACCOUNT ADDR:', accountAaddress);
+
+    //////                               [BELOW uncomment]------------------------ TESTING TESTING TESTING...
     // if(accountAaddress == null) {
     //   let msg = 'Enter Ethereum address by scanning the QR code, then tap \'SCAN\'. ';
     //   presentAlert('Missing Address', msg)
@@ -134,7 +118,25 @@ const getStuff = () => {
       getTxsForAccount(target1_addr) ////// <------------------------ TESTING TESTING TESTING...
       // getTxsForAccount(accountAaddress)
       .then(result => {
-        tableDataFull = result;
+        console.log('ACCT: TOTAL ALL FOUND ---------> BOOOM', result);
+        console.log('ACCT: TOTAL TX FOUND ---------> BOOOM', result.tx_count);
+        console.log('ACCT: TOTAL AP FOUND ---------> BOOOM', result.ap_count);
+
+        let msg = '';
+        if(ap_count == 0) {
+          msg = 'No approvals found for account. Transactions reviewed: ' + result.tx_count;
+        }
+        else {
+          msg = 'Found ' + result.tx_count + ' tranactions and ' + result.ap_count + ' approvals for account. ';
+          msg = msg + '\n\nScan will continue to ping for additional blockchain transaction inforation.';
+        }
+        presentAlert('Results', msg)
+
+        console.log('ACCT: TOTAL ALL FOUND ---------> BOOOM2', result);
+        console.log('ACCT: TOTAL TX FOUND ---------> BOOOM2', result.tx_count);
+        console.log('ACCT: TOTAL AP FOUND ---------> BOOOM2', result.ap_count);
+
+        tableDataFull = result.tx_object;
         // setTableData(tableDataFull);       // Load partial results
         setItems(tableDataFull);
 
@@ -162,14 +164,14 @@ const getStuff = () => {
     const storeData = async (addr) => {
       try {
         console.log('Storing data: ', addr)
-        await AsyncStorage.setItem(CONSTANTS.USER_PREF_KEY, addr);
+        await AsyncStorage.setItem(CONSTANTS.USER_ADDRESS_KEY, addr);
       } catch (e) {
         console.log('Error storing data: ', e)
       }
     }
     const updateAccountAddress = async () => {
       try {
-        const addr = await AsyncStorage.getItem(CONSTANTS.USER_PREF_KEY);
+        const addr = await AsyncStorage.getItem(CONSTANTS.USER_ADDRESS_KEY);
         if(addr !== null) {
             setAccountAddress(addr);
         }
@@ -207,12 +209,12 @@ const getStuff = () => {
         <RNModal visible={displayTXDetailVisible} onDismiss={hideTXDetailModal}
           contentContainerStyle={{backgroundColor: 'blue', padding: 60}}>
           <SafeAreaView>
-          <ScrollView>
-            <View>
-              <DisplayTXDetail row={TXContent}/>
-              <Button mode="contained" onPress={() => hideTXDetailModal()}>close</Button>
-            </View>
-            </ScrollView>
+            <ScrollView>
+              <View>
+                <DisplayTXDetail row={TXContent}/>
+                <Button mode="contained" onPress={() => hideTXDetailModal()}>close</Button>
+              </View>
+              </ScrollView>
           </SafeAreaView>
         </RNModal>
 
@@ -246,7 +248,6 @@ const getStuff = () => {
             />
           </View>
         </RNModal>
-
 
         <ScrollView>
           <DataTable>
@@ -298,37 +299,13 @@ const getStuff = () => {
             />
           </DataTable>
 
-
           <View style={{ height: 200, backgroundColor: 'transparent' }}  /* Pad */ />
 
           </ScrollView>
           <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
 
-
-
     </View /* END OF VIEW */>
     );
 }
-
-  // const styles333 = StyleSheet.create({
-  //   fab: {
-  //     position: 'absolute',
-  //     margin: 30,
-  //     justifyContent: 'center',
-  //     alignItems: 'center',
-  //     bottom: 0,
-  //   },
-  // })
-  //
-  // <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
-  //   <FAB
-  //     style={styles333.fab}
-  //     small
-  //     icon="plus"
-  //     onPress={() => console.log('Pressed')}
-  //     loading={true}
-  //   />
-  // </View>
-
 
 export default MainScreen
