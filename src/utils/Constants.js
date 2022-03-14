@@ -1,6 +1,9 @@
 /**
     Constanst.js - Global constants
  */
+ let millisecondsInHour = 60 * 60 * 24 * 1000;
+ let millisecondsInTenSeconds = 10 * 1000;
+
 export default {
   ETHERSCAN_API_URL: 'https://api.etherscan.io/api',
   ETHERSCAN_API_KEY: 'II6C1KJAWN43ETC7P63H2J78ER3C6AEDFY',
@@ -9,6 +12,7 @@ export default {
   TX_COUNT_KEY: '@tx_count_key',
   AP_COUNT_KEY: '@ap_count_key',
   MONITOR_SHOULD_RUN_KEY: '@monitor_should_run_key',
+  MONITOR_INTERVAL: millisecondsInTenSeconds,
   TRUE: 'true',
   FALSE: 'false',
   COLOR: {

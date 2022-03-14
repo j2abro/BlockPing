@@ -126,10 +126,10 @@ useEffect(() => { onAppLoad(); }, []);
   const BottomTabBar = () => {
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
-      { key: 'mainScreen', title: 'Main', icon: 'camera' },
-      { key: 'SettingsScreen', title: 'Settings', icon: 'album' },
+      { key: 'mainScreen', title: 'Scan', icon: 'radar' },
+      { key: 'SettingsScreen', title: 'Monitor', icon: 'repeat' },
     ]);
-    const renderScene = BottomNavigation.SceneMap({mainScreen: MainScreenRoute, SettingsScreen: SettingsScreenRoute,});
+    const renderScene = BottomNavigation.SceneMap({mainScreen: MainScreenRoute, SettingsScreen: SettingsScreenRoute});
 
     return (
      <BottomNavigation

@@ -9,26 +9,13 @@ import { startBackgroundTask, stopBackgroundTask } from '../utils/BackgroundTime
 import CONSTANTS from '../utils/Constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/Styles';
-// import BackgroundTask from 'react-native-background-task';
-import BackgroundTimer from 'react-native-background-timer';
 import { createAccount, getTxsForAccount, getApprovalsForTxs, getContractName,
         anotherApproach, filterSettledApprovals } from '../crypto/blockchain';
 
-// let localNotification = Notifications.postLocalNotification({
-//     body: "Local notification!",
-//     title: "Local Notification Title",
-//     sound: "chime.aiff",
-//     silent: false,
-//     category: "SOME_CATEGORY",
-//     userInfo: { },
-//     fireDate: new Date(),
-// });
-
-
+import { Notifications } from 'react-native-notifications';
 
 function SettingsScreen() {
   const [accountAaddress, setAccountAddress] = useState('');
-  // useEffect(() => { updateAccountAddress(); }, []);
   const [isSwitchOn, setIsSwitchOn] = useState();
   useEffect(() => { getSwitchStateOnLoad(); }, []);
 
@@ -41,6 +28,7 @@ function SettingsScreen() {
     setAlertMessage(message);
     setAlertIsVisible(true)
   }
+
 
   // On load check AsyncStorage and set swich
   const getSwitchStateOnLoad = async () => {
@@ -66,6 +54,10 @@ function SettingsScreen() {
       setIsSwitchOn(false);
     }
     else {
+      // First request notification permission, if not enabled
+      if(!isRegistered()) {
+        requestPermissions()
+      }
       // Turn on, but only if we have an address
       if(accountAaddress != null) {
         stopBackgroundTask(); // Stop to ensure we don't have multiple tasks running
@@ -83,29 +75,75 @@ function SettingsScreen() {
   }
 
 
+  // Local Notifications <start>
+  const requestPermissions = () => {
+    Notifications.registerRemoteNotifications();
+  }
+
+  const sendLocalNotificationDelay = () => {
+    setTimeout(() => {
+      console.log("Sending soon");
+      sendLocalNotification();
+    }, 5000);
+  }
+  const sendLocalNotification = () => {
+    Notifications.postLocalNotification({
+      title: 'My Title',
+      body: 'Local 444'
+    });
+  }
+
+  const checkPermissions = () => {
+    Notifications.ios.checkPermissions().then((currentPermissions) => {
+      console.log(currentPermissions);
+    });
+  }
+
+  const isRegistered = () => {
+    Notifications.isRegisteredForRemoteNotifications().then((registered) => {
+      console.log(registered);
+    });
+  }
+  // Local Notifications <end>
+
+
   return (
-    <View style={{justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Settings</Text>
-    <Text>Settings</Text>
-    <Text>Settings</Text>
-    <View>
-        <TextInput
-            label="Ethereum Address"
-            onChangeText={setAccountAddress}
-            value={accountAaddress}
-            placeholder="Ethereum Address"
-            editable={false}
-            multiline={true}
-            style={{fontSize: 12}}
-        />
-    </View>
-    <Text>Settings</Text>
-    <Text>Settings</Text>
-    <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
-    <Text>Settings</Text>
-    <Text>Settings</Text>
-    <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
-    </View>
+
+      <ScrollView>
+        <View>
+        <View style={{justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Settings</Text>
+        <Text>Settings</Text>
+        <Text>Settings</Text>
+        <View>
+            <TextInput
+                label="Ethereum Address"
+                onChangeText={setAccountAddress}
+                value={accountAaddress}
+                placeholder="Ethereum Address"
+                editable={false}
+                multiline={true}
+                style={{fontSize: 12}}
+            />
+        </View>
+        <Text>Settings</Text>
+        <Text>Settings</Text>
+        <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+        <Text>Settings</Text>
+
+        <View style={{flexDirection : 'column'}}>
+
+          <Button style={{flex: 0}} mode="contained" onPress={() => sendLocalNotificationDelay()} testID={'sendLocalNotification'}>send</Button>
+
+        </View>
+        <Text>Settings</Text>
+        <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
+
+        </View>
+
+
+        </View>
+        </ScrollView>
 
   );
 }
