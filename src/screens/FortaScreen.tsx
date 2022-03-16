@@ -179,7 +179,7 @@ const GET_PETS = gql`
 
 
 
-  // const tartget_addr = '0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25';
+  const tartget_addr2 = '0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25';
   const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'
   // const request_headers = { "content-type": "application/json", "Authorization": "<token>" };
 
@@ -192,18 +192,6 @@ const GET_PETS = gql`
 
 
 
-  const input222 = {
-    "input": {
-      "first": 2,
-      "addresses": ["0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441"],
-      "chainId": 1,
-      "blockSortDirection": "asc",
-      "blockDateRange": {
-        "startDate": "2022-02-01",
-        "endDate": "2022-02-01"
-      }
-    }
-  }
 
   const fortaStuff = () => {
     setIsScanning(true);
@@ -214,45 +202,50 @@ const GET_PETS = gql`
     }
     else {
       console.log('Do forta stuff...');
-      //opType opName
 
-      let first = 3
+      //const yoyo =  "0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25";
+      //addresses: ["0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25"]
+      const first = 3
+      const yoyo =  "0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25";
+      const startDate = "2022-03-01";
+      const endDate = "2022-03-01";
+
       client.query({ query: gql`
-            query todaysAlerts {
-        alerts(
-          input: {
-            first: ${first}
-            addresses: ["0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25"]
-            chainId: 1
-            blockSortDirection: asc
-            blockDateRange: { startDate: "2022-02-01", endDate: "2022-02-01" }
-          }
-        ) {
-          pageInfo {
-            hasNextPage
-            endCursor {
-              alertId
-              blockNumber
+        query todaysAlerts {
+          alerts(
+            input: {
+              first: ${first}
+              addresses: ["${yoyo}"]
+              chainId: 1
+              blockSortDirection: asc
+              blockDateRange: { startDate: "${startDate}", endDate: "${endDate}" }
             }
-          }
-          alerts {
-            addresses
-            name
-            protocol
-            findingType
-            source {
-              transactionHash
-              block {
-                number
-                timestamp
-                chainId
+          ) {
+            pageInfo {
+              hasNextPage
+              endCursor {
+                alertId
+                blockNumber
               }
             }
-            severity
-            metadata
+            alerts {
+              addresses
+              name
+              protocol
+              findingType
+              source {
+                transactionHash
+                block {
+                  number
+                  timestamp
+                  chainId
+                }
+              }
+              severity
+              metadata
+            }
           }
         }
-      }
       `
       })
       .then(result => {
@@ -262,7 +255,29 @@ const GET_PETS = gql`
           var a = alerts[i];
           console.log('--------------', i);
           console.log(a);
+
+          let val = 'NA'
+          if(a.metadata != null && a.metadata.hasOwnProperty('value')) {
+            val = a.metadata.value;
+          }
+          const alert_object = {
+              index: i,
+              addresses: a.addresses,
+              name: a.name,
+              protocol: a.protocol,
+              findingType: a.findingType,
+              transactionHash: a.source.transactionHash,
+              __typename: a.source.block.__typename,
+              number: a.source.block.number,
+              timestamp: a.source.block.timestamp,
+              chainId: a.source.block.chainId,
+              severity: a.severity,
+              value: val
+          };
+
+          tableDataFull.push(alert_object);
         }
+        setItems(tableDataFull);
       });
 
 
