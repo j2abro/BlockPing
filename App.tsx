@@ -27,11 +27,12 @@ import {
   BottomNavigation, Appbar,
 } from 'react-native-paper';
 
-import './shim'
-import CONSTANTS from './src/utils/Constants'
-import MainScreen from './src/screens/MainScreen'
-import ModalDetailScreen from './src/screens/ModalDetailScreen'
-import SettingsScreen from './src/screens/SettingsScreen'
+import './shim';
+import CONSTANTS from './src/utils/Constants';
+import MainScreen from './src/screens/MainScreen';
+import ModalDetailScreen from './src/screens/ModalDetailScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import FortaScreen from './src/screens/FortaScreen';
 import { name as appName } from './app.json';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import merge from 'deepmerge';
@@ -43,7 +44,7 @@ import { startBackgroundTask, stopBackgroundTask } from './src/utils/BackgroundT
 const CombinedDefaultTheme = merge(PaperDefaultTheme, NavigationDefaultTheme);
 const CombinedDarkTheme = merge(PaperDarkTheme, NavigationDarkTheme);
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
@@ -123,13 +124,28 @@ useEffect(() => { onAppLoad(); }, []);
       )
   }
 
+  const FortaScreenRoute = () => {
+    return (
+      <SafeAreaView>
+        <TopBar/>
+        <FortaScreen />
+      </SafeAreaView>
+      )
+  }
+
+
   const BottomTabBar = () => {
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
-      { key: 'mainScreen', title: 'Scan', icon: 'radar' },
-      { key: 'SettingsScreen', title: 'Monitor', icon: 'repeat' },
+      { key: 'mainScreen',     title: 'Scan',     icon: 'radar' },
+      { key: 'SettingsScreen', title: 'Monitor',  icon: 'repeat' },
+      { key: 'FortaScreen',    title: 'Forta',    icon: 'flash-alert-outline' },
     ]);
-    const renderScene = BottomNavigation.SceneMap({mainScreen: MainScreenRoute, SettingsScreen: SettingsScreenRoute});
+    const renderScene = BottomNavigation.SceneMap({
+        mainScreen: MainScreenRoute,
+        SettingsScreen: SettingsScreenRoute,
+        FortaScreen: FortaScreenRoute});
+
 
     return (
      <BottomNavigation

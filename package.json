@@ -11,6 +11,7 @@
     "postinstall": "./node_modules/.bin/rn-nodeify --install 'crypto,buffer,react-native-randombytes,vm,stream,http,https,os,url,net,fs' --hack"
   },
   "dependencies": {
+    "@apollo/client": "^3.5.10",
     "@react-native-async-storage/async-storage": "^1.16.1",
     "@react-native-community/netinfo": "^8.0.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
@@ -28,6 +29,7 @@
     "dns.js": "^1.0.1",
     "domain-browser": "^1.2.0",
     "events": "^1.1.1",
+    "graphql": "^16.3.0",
     "https-browserify": "^0.0.1",
     "node-libs-browser": "^2.2.1",
     "path-browserify": "^0.0.0",

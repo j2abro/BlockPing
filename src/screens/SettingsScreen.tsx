@@ -11,11 +11,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/Styles';
 import { createAccount, getTxsForAccount, getApprovalsForTxs, getContractName,
         anotherApproach, filterSettledApprovals } from '../crypto/blockchain';
-
 import { Notifications } from 'react-native-notifications';
 
 function SettingsScreen() {
-  const [accountAaddress, setAccountAddress] = useState('');
+  const [accountAaddress, setAccountAddress] = useState(null);
   const [isSwitchOn, setIsSwitchOn] = useState();
   useEffect(() => { getSwitchStateOnLoad(); }, []);
 
@@ -29,16 +28,34 @@ function SettingsScreen() {
     setAlertIsVisible(true)
   }
 
+  const updateAccountAddress = async () => {
+    try {
+      const addr = await AsyncStorage.getItem(CONSTANTS.USER_ADDRESS_KEY);
+      if(addr !== null) {
+          setAccountAddress(addr);
+      }
+      else {
+        displayLoadAddressAlert()
+      }
+    } catch(e) {
+      console.log('Error getting data: ', e)
+    }
+  }
+
+  // Consistent messsage for missing addr
+  const displayLoadAddressAlert = () => {
+    presentAlert('Set Account Address', 'Use the \'Scan\' tab to load an address to be used when monitoring is activated.');
+  }
 
   // On load check AsyncStorage and set swich
   const getSwitchStateOnLoad = async () => {
+    updateAccountAddress();
     try {
       const switchState = await AsyncStorage.getItem(CONSTANTS.MONITOR_SHOULD_RUN_KEY);
       if(switchState == CONSTANTS.TRUE) {
         setIsSwitchOn(true);
       }
       else {
-        console.log('LOAD ============================getSwitchStateOnLoad 2222 OFF');
         setIsSwitchOn(false)
       }
     } catch(e) {
@@ -48,6 +65,7 @@ function SettingsScreen() {
 
   // Handle user tap on switch
   const onToggleSwitch = () => {
+    updateAccountAddress();
     if(isSwitchOn) {
       stopBackgroundTask();
       AsyncStorage.setItem(CONSTANTS.MONITOR_SHOULD_RUN_KEY, CONSTANTS.FALSE);
@@ -67,84 +85,63 @@ function SettingsScreen() {
       }
       else {
         stopBackgroundTask();
-        presentAlert('No Account Address',
-          'Use the QR Code scanner on main screen to load an account address, which can be monitored.');
+        displayLoadAddressAlert();
         setIsSwitchOn(false); // reset to OFF
       }
     }
   }
 
-
-  // Local Notifications <start>
-  const requestPermissions = () => {
-    Notifications.registerRemoteNotifications();
-  }
-
-  const sendLocalNotificationDelay = () => {
-    setTimeout(() => {
-      console.log("Sending soon");
-      sendLocalNotification();
-    }, 5000);
-  }
-  const sendLocalNotification = () => {
-    Notifications.postLocalNotification({
-      title: 'My Title',
-      body: 'Local 444'
-    });
-  }
-
-  const checkPermissions = () => {
-    Notifications.ios.checkPermissions().then((currentPermissions) => {
-      console.log(currentPermissions);
-    });
-  }
-
+  // Local Notifications
   const isRegistered = () => {
     Notifications.isRegisteredForRemoteNotifications().then((registered) => {
       console.log(registered);
     });
   }
-  // Local Notifications <end>
-
+  const requestPermissions = () => {
+    Notifications.registerRemoteNotifications();
+  }
 
   return (
+    <View style={{ width: '100%', height: '100%', backgroundColor: 'white'}}>
+    <ScrollView>
+      <View style={{ width: '100%', height: '100%', backgroundColor: 'white', padding: 10, flexDirection : 'column'}}>
 
-      <ScrollView>
-        <View>
-        <View style={{justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Settings</Text>
-        <Text>Settings</Text>
-        <Text>Settings</Text>
-        <View>
-            <TextInput
-                label="Ethereum Address"
-                onChangeText={setAccountAddress}
-                value={accountAaddress}
-                placeholder="Ethereum Address"
-                editable={false}
-                multiline={true}
-                style={{fontSize: 12}}
-            />
-        </View>
-        <Text>Settings</Text>
-        <Text>Settings</Text>
+      <Text
+        style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginTop: 0, width: '100%', }}>
+        Monitor
+      </Text>
+
+      <Text style={{fontWeight: 'bold'}}>Daily Monitoring: </Text>
+      <Text>
+      Enable daily scanning of an account address. Once a day, the transaction count and
+      approvals will be scanned on the blockchain and compared with the previous day.
+      This will highlight your account activity.
+      </Text>
+
+      <View style={{ alignSelf: 'stretch', padding: 10}}>
+        <TextInput
+          label="Ethereum Address"
+          onChangeText={setAccountAddress}
+          value={accountAaddress}
+          placeholder="Ethereum Address"
+          editable={false}
+          multiline={true}
+          style={{ fontSize: 12 }}
+        />
+      </View>
+
+      <Button style={{flex: 0, margin: 10}} mode="outlined" onPress={() => updateAccountAddress()}>Load Address</Button>
+
+
+      <View style={{flexDirection : 'row', justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{fontWeight: 'bold'}}>Enable Monitoring Monitoring: </Text>
         <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
-        <Text>Settings</Text>
+      </View>
 
-        <View style={{flexDirection : 'column'}}>
-
-          <Button style={{flex: 0}} mode="contained" onPress={() => sendLocalNotificationDelay()} testID={'sendLocalNotification'}>send</Button>
-
-        </View>
-        <Text>Settings</Text>
-        <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
-
-        </View>
-
-
-        </View>
-        </ScrollView>
-
+      <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
+      </View>
+    </ScrollView>
+    </View>
   );
 }
 export default SettingsScreen;

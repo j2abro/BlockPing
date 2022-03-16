@@ -95,6 +95,9 @@ export function getTxsForAccount(user_account_number) {
                             txHash = tx.hash;
                             contractAddr = tx.to;
 
+                            //1047652886655223395
+                            //1,047,652,886,655,223,395 = 18  or 10e-18
+
                             let utcdatetime = getUtcDateTime();
 
                             const tx_object = {
@@ -163,24 +166,34 @@ export async function getApprovalsForTxs(contract_and_input_all) {
                 // addrTHIS = '0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908';
                 // console.log('contractAddr', contractAddr);
                 var contract888 = new web3.eth.Contract(contractABI, contractAddr);
+                // contract888.methods.decimals().call() // <------- TEST (results: all were 18)
                 contract888.methods.allowance(owner_addr, contractAddr).call()
                 .then(result => {
-                    console.log('-------------------------------------------> Allowance = ', result);
+                    console.log('-------------------------------------------> AllowanceDDDDD  = ', result);
                 })
                 .catch(error => {
                     console.error('-------------------------------------------> Allowance ERROR:', error)
                 })
 
                 // Print all function names with 'allowance'
-                // for(i in contractABI) {
-                //     name = contractABI[i].name //).toLowerCase()
-                //     // console.log(name)
-                //     if(name !== undefined) {
-                //         if((name.toLowerCase()).includes('allowance')) {
-                //             console.log(name)
-                //         }
-                //     }
-                // }
+                for(i in contractABI) {
+                    name = contractABI[i].name //).toLowerCase()
+                    // console.log('NAME', name)
+                    if(name !== undefined) {
+                        if((name.toLowerCase()).includes('decimal')) { //'allowance'
+                            console.log('BOOOM ------', name)
+                        }
+                    }
+                }
+////
+                // let num = 	1047652886655223395;
+                // console.log('one', num);
+                // let short = num/Math.pow(10, 18); //  1000000000000000000;
+                // console.log('two', short);
+                // let short2 = short.toFixed(4)
+                // console.log('three', short2);
+////
+
 
                 row.func = decodedData.name;
                 row.delegate_to = decodedData.params[0].value;
@@ -188,11 +201,13 @@ export async function getApprovalsForTxs(contract_and_input_all) {
                 let amount_display = '';
 
                 if(amount == CONSTANTS.MAX_INT) {
-                    amount_display = 'unltd';
-                } else if (amount > 1000000000) {
-                    amount_display = 'large';
+                  amount_display = 'Unlmtd';
+                } else if (amount > 0) {
+                  // Convert wei to eth so move left 18 decimal places
+                  converted_amount = amount/Math.pow(10, 18);
+                  amount_display = converted_amount.toFixed(4);
                 } else {
-                    amount_display = amount;
+                  amount_display = amount;
                 }
                 row.amount = amount;
                 row.amount_display = amount_display;

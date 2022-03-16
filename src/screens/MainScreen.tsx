@@ -66,12 +66,6 @@ function MainScreen({navigation}) {
   const [TXContent, setTXContent] = React.useState('stuff');
 
 
-const getStuff = () => {
-  return (
-    <Text>BOOOOM</Text>
-  )
-}
-
   // Handle click on table row
   const onRowSelect = (ap_count) => {
     tableDataFull.forEach((element, index, array) => {
@@ -101,22 +95,18 @@ const getStuff = () => {
   }
 
   // const target1_addr = '0x0C9f12c725504253BfDAd26B764817B7c85f3c27' // zero
-  const target1_addr = '0xe2993904204ab04e9579a5bf0a847fc6dca1a830'; // orig 7
+  // const target1_addr = '0 xe2993904204ab04e9579a5bf0a847fc6dca1a830'; // orig 7
   // const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'; //j2
   const startScan = () => {
     console.log('ACCOUNT ADDR:', accountAaddress);
-
-    //////                               [BELOW uncomment]------------------------ TESTING TESTING TESTING...
-    // if(accountAaddress == null) {
-    //   let msg = 'Enter Ethereum address by scanning the QR code, then tap \'SCAN\'. ';
-    //   presentAlert('Missing Address', msg)
-    //   setIsScanning(false);
-    //   return;
-    // }
+    if(accountAaddress == null) {
+      let msg = 'Enter Ethereum address by scanning the QR code, then tap \'Scan\'. ';
+      presentAlert('Missing Address', msg)
+      setIsScanning(false);
+      return;
+    }
     setIsScanning(true);
-
-      getTxsForAccount(target1_addr) ////// <------------------------ TESTING TESTING TESTING...
-      // getTxsForAccount(accountAaddress)
+      getTxsForAccount(accountAaddress)
       .then(result => {
         console.log('ACCT: TOTAL ALL FOUND ---------> BOOOM', result);
         console.log('ACCT: TOTAL TX FOUND ---------> BOOOM', result.tx_count);
@@ -201,8 +191,6 @@ const getStuff = () => {
         }
       };
 
-//              <Text>{TXContent}</Text>
-    const containerStyle = {backgroundColor: 'blue', padding: 60};
     return (
         <View style={{paddingBottom: 120}} /* Pad so tab doesn't hide table */ >
 
@@ -220,7 +208,7 @@ const getStuff = () => {
 
         <View style={{flexDirection : 'row'}}>
             <Button style={{flex: 1}} mode="outlined" onPress={() => getFilteredTableList()}>{filterButtonTitle}</Button>
-            <Button style={{flex: 1}} mode="outlined" loading={ isScanning } onPress={() => startScan()}>Scan</Button>
+            <Button style={{flex: 1}} mode="outlined" loading={ isScanning } disabled={ isScanning } onPress={() => startScan()}>Scan</Button>
             <Button style={{flex: 1}} mode="outlined" icon="qrcode-scan" onPress={() => setOpenQRScanner(true) } >Address</Button>
         </View>
 
