@@ -133,6 +133,10 @@ function FortaScreen() {
     }
   }
 
+
+
+
+
   // Local Notifications
   const isRegistered = () => {
     Notifications.isRegisteredForRemoteNotifications().then((registered) => {
@@ -143,8 +147,40 @@ function FortaScreen() {
     Notifications.registerRemoteNotifications();
   }
 
+const GET_PETS = gql`
+  query todaysAlerts($input: AlertsInput) {
+    alerts(input: $input) {
+      pageInfo {
+        hasNextPage
+        endCursor {
+          alertId
+          blockNumber
+        }
+      }
+      alerts {
+        addresses
+        name
+        protocol
+        findingType
+        source {
+          transactionHash
+          block {
+            number
+            timestamp
+            chainId
+          }
+        }
+        severity
+        metadata
+      }
+    }
+  }
+  ` // End of query
+
+
+
   // const tartget_addr = '0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25';
-  const target1_addr = '' //0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'
+  const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'
   // const request_headers = { "content-type": "application/json", "Authorization": "<token>" };
 
   const fortaUrl = 'https://api.forta.network/graphql';
@@ -153,10 +189,13 @@ function FortaScreen() {
     uri: fortaUrl,
     cache: new InMemoryCache()
   });
-  const input = {
+
+
+
+  const input222 = {
     "input": {
-      "first": 25,
-      "addresses": ["${target_addr}"],
+      "first": 2,
+      "addresses": ["0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441"],
       "chainId": 1,
       "blockSortDirection": "asc",
       "blockDateRange": {
@@ -175,36 +214,46 @@ function FortaScreen() {
     }
     else {
       console.log('Do forta stuff...');
+      //opType opName
 
+      let first = 3
       client.query({ query: gql`
-        query todaysAlerts($input: AlertsInput) {
-          alerts(input: $input) {
-            pageInfo {
-              hasNextPage
-              endCursor {
-                alertId
-                blockNumber
-              }
-            }
-            alerts {
-              addresses
-              name
-              protocol
-              findingType
-              source {
-                transactionHash
-                block {
-                  number
-                  timestamp
-                  chainId
-                }
-              }
-              severity
-              metadata
+            query todaysAlerts {
+        alerts(
+          input: {
+            first: ${first}
+            addresses: ["0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25"]
+            chainId: 1
+            blockSortDirection: asc
+            blockDateRange: { startDate: "2022-02-01", endDate: "2022-02-01" }
+          }
+        ) {
+          pageInfo {
+            hasNextPage
+            endCursor {
+              alertId
+              blockNumber
             }
           }
+          alerts {
+            addresses
+            name
+            protocol
+            findingType
+            source {
+              transactionHash
+              block {
+                number
+                timestamp
+                chainId
+              }
+            }
+            severity
+            metadata
+          }
         }
-        ` // End of query
+      }
+      `
       })
       .then(result => {
         let alerts = result.data.alerts.alerts;
@@ -212,40 +261,12 @@ function FortaScreen() {
         for(const i in alerts) {
           var a = alerts[i];
           console.log('--------------', i);
-          console.log(i, a.name);
+          console.log(a);
+        }
+      });
 
-          let val = 'NA'
-          if(a.metadata != null && a.metadata.hasOwnProperty('value')) {
-            val = a.metadata.value;
-          }
-          const alert_object = {
-              index: i,
-              addresses: a.addresses,
-              name: a.name,
-              protocol: a.protocol,
-              findingType: a.findingType,
-              transactionHash: a.source.transactionHash,
-              __typename: a.source.block.__typename,
-              number: a.source.block.number,
-              timestamp: a.source.block.timestamp,
-              chainId: a.source.block.chainId,
-              severity: a.severity,
-              value: val
-          };
-          tableDataFull.push(alert_object);
-        } // end of for alert loop
-      }) // end of .then
-      .catch(error => {
-        console.error('Forta error 111:', error)
-      })
-      .then(result =>{
-        setItems(tableDataFull);
-        setIsScanning(false);
-      })
-      .catch(error => {
-        console.error('Forta error 222:', error)
-        setIsScanning(false);
-      })
+
+
     } // end of else
   } // end of fortaStuff
 
@@ -387,3 +408,55 @@ function FortaScreen() {
   );
 }
 export default FortaScreen;
+
+
+/*
+
+client.query({ query: gql`
+      query todaysAlerts {
+  alerts(
+    input: {
+      first: 25
+      addresses: ["0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25"]
+      chainId: 1
+      blockSortDirection: asc
+      blockDateRange: { startDate: "2022-02-01", endDate: "2022-02-01" }
+    }
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor {
+        alertId
+        blockNumber
+      }
+    }
+    alerts {
+      addresses
+      name
+      protocol
+      findingType
+      source {
+        transactionHash
+        block {
+          number
+          timestamp
+          chainId
+        }
+      }
+      severity
+      metadata
+    }
+  }
+}
+`
+})
+.then(result => {
+  let alerts = result.data.alerts.alerts;
+  tableDataFull = []
+  for(const i in alerts) {
+    var a = alerts[i];
+    console.log('--------------', i);
+    console.log(a);
+  }
+});
+*/
