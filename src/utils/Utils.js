@@ -4,7 +4,7 @@
 import React from 'react'
 import CONSTANTS from '../utils/Constants'
 import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph } from 'react-native-paper';
-import { View } from 'react-native';
+import { View, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 
 
 export function sleep(ms) {
@@ -32,8 +32,11 @@ export function getUtcDateTime() {
   return(utcdatetime)
 }
 
+
+
 export const AlertDialogBox = ({ visible, onChangeVisible, title, message }) => {
   return (
+
     <Provider>
       <Portal>
         <Dialog visible={visible} >
@@ -42,7 +45,7 @@ export const AlertDialogBox = ({ visible, onChangeVisible, title, message }) => 
           <Dialog.Actions>
             <Button onPress={() => onChangeVisible(false)}>OK</Button>
           </Dialog.Actions>
-        </Dialog>
+        </Dialog>        
       </Portal>
     </Provider>
   );

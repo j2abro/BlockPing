@@ -24,7 +24,7 @@ const exampleRecord = {
 const DisplayTXDetail = (props) => {
   tx = props.row;
   return (
-    <View style={{padding: 10 }}>
+    <View style={{padding: 10  }}>
       <Text style={{fontWeight: 'bold', textAlign: 'center'}}>Transaction Detail</Text>
       <Text style={{fontWeight: 'bold'}}>tx_hash: </Text><Text>{tx.tx_hash}</Text>
       <Text style={{fontWeight: 'bold'}}>timestamp: </Text><Text>{tx.timestamp}</Text>

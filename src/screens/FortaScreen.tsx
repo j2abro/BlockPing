@@ -4,7 +4,7 @@ import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Linking, View, ScrollView, SafeAreaView, Modal as RNModal } from 'react-native';
 import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
   DataTable, Card, Switch, Menu, Divider } from 'react-native-paper';
-import { trimString, AlertDialogBox, pretty_print, myTestTableData } from '../utils/Utils';
+import { trimString, AlertDialogBox, pretty_print, myTestTableData, getUtcDateTime} from '../utils/Utils';
 import { startBackgroundTask, stopBackgroundTask } from '../utils/BackgroundTimer';
 import CONSTANTS from '../utils/Constants'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,10 +43,10 @@ const addressSelectItems = [
 ];
 
 function FortaScreen() {
-  const [accountAaddress, setAccountAddress] = useState(null);
+  const [accountAddress, setAccountAddress] = useState(null);
   const [accountLabel, setAccountLabel] = useState("Ethereum Address")
   const [isSwitchOn, setIsSwitchOn] = useState();
-  useEffect(() => { getSwitchStateOnLoad(); }, []);
+  useEffect(() => { updateAccountAddressOnLoad(); }, []);
 
   // Table properties <start>
   const [items, setItems] = useState(tableDataFull)
@@ -72,6 +72,7 @@ function FortaScreen() {
     setAlertMessage(message);
     setAlertIsVisible(true)
   }
+  // useEffect(() => {}, [accountAddress]);
 
   // Display TX Detail Modal
   const [displayTXDetailVisible, setDisplayTXDetailVisible] = useState(false);
@@ -79,24 +80,41 @@ function FortaScreen() {
   const hideTXDetailModal = () => setDisplayTXDetailVisible(false);
   const [TXContent, setTXContent] = React.useState('stuff');
 
-  // Drop down menu
+
+  // Drop down menu <Button mode="contained" onPress={() => selectMenu(20)}>DDD</Button>
   const [visible, setVisible] = React.useState(false);
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
-  const selectMenu = async (index) => {
-    console.log('select boom', index)
+  const selectMenu = (index) => {
+    // console.log('111 -- >', index, accountAddress);
+    // console.log('111 -- >', index, accountLabel);
+    // setAccountAddress('11AAA')
+    // setAccountLabel("11LLL")
+    // console.log('222 -- >', index, accountAddress);
+    // console.log('222 -- >', index, accountLabel);
+    // setTimeout(() => {
+    //   console.log('333 -- >', index, accountAddress);
+    //   console.log('333 -- >', index, accountLabel);
+    //   }, 2000);
     setVisible(false);
     let address = undefined;
+    // console.log('------------WANT THIS--------------');
+    // console.log('-- WANT THIS -->', index, addressSelectItems[index].address);
+    // console.log('-- CUURRENT -- >', index, accountAddress);
     if(index == 0) {
-      await updateAccountAddress()
+      updateAccountAddress()
       setAccountLabel("Ethereum Address")
     }
     else {
       setAccountAddress(addressSelectItems[index].address);
       setAccountLabel(addressSelectItems[index].title);
-    }
-    // fortaStuff(); // maybe wait until scan button pressed
+    //   setTimeout(() => {
+    //     console.log('Address TIMEOUT ', index, accountAddress);
+    //   }, 2000);
+    // }
+    // console.log('--  GOT THIS -->', index, accountAddress);
   }
+}
 
   const updateAccountAddress = async () => {
     try {
@@ -118,19 +136,9 @@ function FortaScreen() {
   }
 
   // On load check AsyncStorage and set swich
-  const getSwitchStateOnLoad = async () => {
+  const updateAccountAddressOnLoad = async () => {
     updateAccountAddress();
-    try {
-      const switchState = await AsyncStorage.getItem(CONSTANTS.MONITOR_SHOULD_RUN_KEY);
-      if(switchState == CONSTANTS.TRUE) {
-        setIsSwitchOn(true);
-      }
-      else {
-        setIsSwitchOn(false)
-      }
-    } catch(e) {
-      console.log('Error getting data: ', e)
-    }
+    console.log('Update account address on load.')
   }
 
 
@@ -194,30 +202,39 @@ const GET_PETS = gql`
 
 
   const fortaStuff = () => {
-    setIsScanning(true);
-    updateAccountAddress();
+    //updateAccountAddress();
     // Turn on, but only if we have an address
-    if(accountAaddress == null) {
+    if(accountAddress == null) {
         displayLoadAddressAlert();
     }
     else {
       console.log('Do forta stuff...');
+      setIsScanning(true);
 
-      //const yoyo =  "0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25";
-      //addresses: ["0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25"]
-      const first = 3
-      const yoyo =  "0xCC8Fa225D80b9c7D42F96e9570156c65D6cAAa25";
-      const startDate = "2022-03-01";
-      const endDate = "2022-03-01";
+      // Get end date formatted
+      let dateObjUtc = new Date();
+
+      let monthUtc = dateObjUtc.getUTCMonth() + 1;
+      let paddedMonthUtc = ('0' + (monthUtc.toString())).slice(-2) // pad month
+
+      let dayUtc = dateObjUtc.getUTCDate();
+      let paddedDayUtc = ('0' + (dayUtc.toString())).slice(-2) // pad day
+
+      let yeaUtcr = dateObjUtc.getUTCFullYear();
+      let endSearchDate  = yeaUtcr + '-' + paddedMonthUtc + '-' + paddedDayUtc;
+
+      const endDate = endSearchDate; // Format: "2022-03-17"; (padded)
+      const startDate = "2022-01-01"; // only getting latest results so just set this to fixed date
+      const numberOfResults = 100; // get latest 100 records
 
       client.query({ query: gql`
         query todaysAlerts {
           alerts(
             input: {
-              first: ${first}
-              addresses: ["${yoyo}"]
+              first: ${numberOfResults}
+              addresses: ["${accountAddress}"]
               chainId: 1
-              blockSortDirection: asc
+              blockSortDirection: desc
               blockDateRange: { startDate: "${startDate}", endDate: "${endDate}" }
             }
           ) {
@@ -253,8 +270,7 @@ const GET_PETS = gql`
         tableDataFull = []
         for(const i in alerts) {
           var a = alerts[i];
-          console.log('--------------', i);
-          console.log(a);
+
 
           let val = 'NA'
           if(a.metadata != null && a.metadata.hasOwnProperty('value')) {
@@ -275,22 +291,30 @@ const GET_PETS = gql`
               value: val
           };
 
+
+          // console.log(alert_object.timestamp);
+          // console.log(alert_object.name);
+          // console.log(alert_object.transactionHash);
+
           tableDataFull.push(alert_object);
         }
         setItems(tableDataFull);
+        setIsScanning(false);
+      })
+      .catch(error => {
+        console.error('Error 6042:', error)
+        setIsScanning(false);
       });
-
-
-
     } // end of else
   } // end of fortaStuff
 
 ////// TABLE ///////
 
   // Handle click on table row
-  const onRowSelect = (index) => {
+  const onRowSelect = (idx) => {
+    console.log('SELCT:', idx);
     tableDataFull.forEach((element, index, array) => {
-      if(element.index == index) {
+      if(element.index == idx) {
         setTXContent(element);
         setDisplayTXDetailVisible(true);
       }
@@ -316,7 +340,7 @@ const GET_PETS = gql`
   }
 
   return (
-    <View style={{ width: '100%',  backgroundColor: 'white'}}>
+    <View style={{ width: '100%' }}>
 
     <RNModal visible={displayTXDetailVisible} onDismiss={hideTXDetailModal}
       contentContainerStyle={{backgroundColor: 'blue', padding: 60}}>
@@ -324,7 +348,7 @@ const GET_PETS = gql`
         <ScrollView>
           <View>
             <DisplayAlertDetail row={TXContent}/>
-            <Button mode="contained" loading={ isScanning } disabled={ isScanning } onPress={() => hideTXDetailModal()}>close</Button>
+            <Button mode="contained" onPress={() => hideTXDetailModal()}>close</Button>
           </View>
           </ScrollView>
       </SafeAreaView>
@@ -332,18 +356,20 @@ const GET_PETS = gql`
 
 
     <ScrollView>
-      <View style={{ width: '100%', backgroundColor: 'white', padding: 5, flexDirection : 'column'}}>
+      <View style={{ width: '100%', flexDirection : 'column'}}>
 
-      <Text
-        style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginTop: 0, width: '100%', }}>
-        Forta Analysis
-      </Text>
+      <View style={{ padding: 8}}>
+        <Text style={{fontWeight: 'bold' }}>Threat Scan: </Text>
+        <Text>
+          Scan blockchain for risky activity associated with account - This searches for real-time blockchain alerts from Forta.
+        </Text>
+      </View>
 
       <View style={{ alignSelf: 'stretch', padding: 3}}>
         <TextInput
           label={accountLabel}
           onChangeText={setAccountAddress}
-          value={accountAaddress}
+          value={accountAddress}
           placeholder="Ethereum Address"
           editable={false}
           multiline={true}
@@ -361,7 +387,7 @@ const GET_PETS = gql`
           <Menu.Item key={menuItem.index} onPress={() => selectMenu(menuItem.index)} title={menuItem.title} />
           ))}
         </Menu>
-        <Button style={{flex: 1}} mode="outlined" onPress={() => fortaStuff()}>Load Alerts</Button>
+        <Button style={{flex: 1}} mode="outlined" loading={ isScanning } disabled={ isScanning } onPress={() => fortaStuff()}>Threat Scan</Button>
       </View>
 
       <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
@@ -414,6 +440,7 @@ const GET_PETS = gql`
           selectPageDropdownLabel={'Rows per page'}
         />
       </DataTable>
+      <Divider style={styles.divider} />
 
       <View style={{ height: 200, backgroundColor: 'transparent' }}  /* Pad */ />
 

@@ -9,8 +9,6 @@ LogBox.ignoreLogs([
   "EventEmitter.removeListener('change', ...): Method has been deprecated.",
   "Module RNBackgroundFetch requires main queue setup since it overrides `init` but doesn't implement"
 ]);
-import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
-        DataTable, Card, FAB } from 'react-native-paper';
 import React, { useState, useEffect } from 'react';
 import { AppRegistry, View, SafeAreaView, StyleSheet, Modal as RNModal } from 'react-native';
 import { NavigationContainer,
@@ -18,20 +16,23 @@ import { NavigationContainer,
         DefaultTheme as NavigationDefaultTheme, } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from "@react-navigation/stack";
-// import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import InfoModalContent from './src/components/InfoModalContent';
+// import { TextInput, Button, Text, Portal, Modal, Dialog,
+//         DataTable, Card, FAB } from 'react-native-paper';
 import {
+  TextInput, Button, Text, Portal, Modal, Dialog,
+  DataTable, Card, FAB, Divider,
   DarkTheme as PaperDarkTheme,
   DefaultTheme as PaperDefaultTheme,
   Provider as PaperProvider,
   BottomNavigation, Appbar,
 } from 'react-native-paper';
-
 import './shim';
 import CONSTANTS from './src/utils/Constants';
+import pretty_print from './src/utils/Utils';
 import MainScreen from './src/screens/MainScreen';
 import ModalDetailScreen from './src/screens/ModalDetailScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
+import MonitorScreen from './src/screens/MonitorScreen';
 import FortaScreen from './src/screens/FortaScreen';
 import { name as appName } from './app.json';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -40,36 +41,11 @@ import color from 'color';
 import BackgroundTimer from 'react-native-background-timer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { startBackgroundTask, stopBackgroundTask } from './src/utils/BackgroundTimer';
-
-const CombinedDefaultTheme = merge(PaperDefaultTheme, NavigationDefaultTheme);
-const CombinedDarkTheme = merge(PaperDarkTheme, NavigationDarkTheme);
+import { BP_THEME } from './src/styles/Styles';
 
 // const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-
-// const theme = {
-//     ...DefaultTheme,
-//     dark: false,
-//     roundness: 4,
-//     colors: {
-//         primary:        '#6200ee', // purple CONSTANTS.COLOR.BLUE_DARK, //
-//         accent:         '#03dac4', // mint green CONSTANTS.COLOR.BLUE_LIGHT,
-//         background:     '#f6f6f6',// light gray CONSTANTS.COLOR.SAND, //
-//         surface:        '#ffffff', // white
-//         error:          '#B00020', // red CONSTANTS.COLOR.RED, //
-//         text:           '#a9a9a9', //'#000000', //black
-//         onSurface:      '#000000',
-//         disabled:       color('#000000').alpha(0.26).rgb().string(),
-//         placeholder:    '#ffffff', //color('#000000').alpha(0.54).rgb().string(),
-//         backdrop:       color('#000000').alpha(0.5).rgb().string(),
-//         notification:   '#F50057', //pinkA400,
-//     },
-//   // fonts: configureFonts(),
-//   // animation: {
-//   //   scale: 1.0,
-//   // },
-//   };
 
 export default function App() {
 const [modalVisible, setModalVisible] = useState(false);
@@ -93,15 +69,18 @@ useEffect(() => { onAppLoad(); }, []);
   }
 
   const TopBar = () => (
+    <View>
      <Appbar style={{justifyContent: 'flex-end' }}>
        <Appbar.Action icon="information-outline"
        onPress={() => { setModalVisible(true) }} />
       </Appbar>
+      <Divider style={styles.dividermain} />
+    </View>
   );
 
   const MainScreenRoute = () => {
     return (
-      <SafeAreaView>
+      <SafeAreaView style={{flex: 1}}>
         <TopBar/>
         <RNModal
           animationType="slide"
@@ -115,18 +94,19 @@ useEffect(() => { onAppLoad(); }, []);
     )
   } // end MainScreenRoute()
 
-  const SettingsScreenRoute = () => {
+  const MonitorScreenRoute = () => {
     return (
-      <SafeAreaView>
+      <SafeAreaView style={{flex: 1}}>
         <TopBar/>
-        <SettingsScreen />
+        <Divider style={styles.divider} />
+        <MonitorScreen />
       </SafeAreaView>
       )
   }
 
   const FortaScreenRoute = () => {
     return (
-      <SafeAreaView>
+      <SafeAreaView style={{flex: 1}}>
         <TopBar/>
         <FortaScreen />
       </SafeAreaView>
@@ -138,12 +118,12 @@ useEffect(() => { onAppLoad(); }, []);
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
       { key: 'mainScreen',     title: 'Scan',     icon: 'radar' },
-      { key: 'SettingsScreen', title: 'Monitor',  icon: 'repeat' },
-      { key: 'FortaScreen',    title: 'Forta',    icon: 'flash-alert-outline' },
+      { key: 'monitorScreen', title: 'Monitor',  icon: 'repeat' },
+      { key: 'FortaScreen',    title: 'Threats',    icon: 'flash-alert-outline' },
     ]);
     const renderScene = BottomNavigation.SceneMap({
         mainScreen: MainScreenRoute,
-        SettingsScreen: SettingsScreenRoute,
+        monitorScreen: MonitorScreenRoute,
         FortaScreen: FortaScreenRoute});
 
 
@@ -156,10 +136,13 @@ useEffect(() => { onAppLoad(); }, []);
     );
   }; // end BottomTabBar()
 
+
   return (
-    <PaperProvider theme={CombinedDefaultTheme}>
-      <NavigationContainer theme={CombinedDefaultTheme}>
+    <PaperProvider theme={BP_THEME}>
+      <NavigationContainer theme={BP_THEME}>
+        <SafeAreaView style={{flex: 1}}>
         <BottomTabBar/>
+        </SafeAreaView>
       </NavigationContainer>
     </PaperProvider>
 

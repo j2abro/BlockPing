@@ -3,7 +3,7 @@
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Linking, View, ScrollView, Modal as RNModal } from 'react-native';
 import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
-  DataTable, Card, Switch } from 'react-native-paper';
+  DataTable, Card, Switch, Divider } from 'react-native-paper';
 import { trimString, AlertDialogBox, pretty_print, myTestTableData } from '../utils/Utils';
 import { startBackgroundTask, stopBackgroundTask } from '../utils/BackgroundTimer';
 import CONSTANTS from '../utils/Constants'
@@ -13,7 +13,7 @@ import { createAccount, getTxsForAccount, getApprovalsForTxs, getContractName,
         anotherApproach, filterSettledApprovals } from '../crypto/blockchain';
 import { Notifications } from 'react-native-notifications';
 
-function SettingsScreen() {
+function MonitorScreen() {
   const [accountAaddress, setAccountAddress] = useState(null);
   const [isSwitchOn, setIsSwitchOn] = useState();
   useEffect(() => { getSwitchStateOnLoad(); }, []);
@@ -102,23 +102,20 @@ function SettingsScreen() {
   }
 
   return (
-    <View style={{ width: '100%', height: '100%', backgroundColor: 'white'}}>
+    <View style={{ width: '100%', height: '100%'}}>
     <ScrollView>
-      <View style={{ width: '100%', height: '100%', backgroundColor: 'white', padding: 10, flexDirection : 'column'}}>
+      <View style={{ width: '100%', height: '100%', flexDirection : 'column'}}>
 
-      <Text
-        style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginTop: 0, width: '100%', }}>
-        Monitor
-      </Text>
+      <View style={{ padding: 8}}>
+        <Text style={{fontWeight: 'bold' }}>Daily Approval Monitoring: </Text>
+        <Text>
+        Enable daily scanning of an account address. Once a day, the transaction count and
+        approvals will be scanned on the blockchain and compared with the previous day.
+        This will highlight your account activity.
+        </Text>
+      </View>
 
-      <Text style={{fontWeight: 'bold'}}>Daily Monitoring: </Text>
-      <Text>
-      Enable daily scanning of an account address. Once a day, the transaction count and
-      approvals will be scanned on the blockchain and compared with the previous day.
-      This will highlight your account activity.
-      </Text>
-
-      <View style={{ alignSelf: 'stretch', padding: 10}}>
+      <View >
         <TextInput
           label="Ethereum Address"
           onChangeText={setAccountAddress}
@@ -131,10 +128,11 @@ function SettingsScreen() {
       </View>
 
       <Button style={{flex: 0, margin: 10}} mode="outlined" onPress={() => updateAccountAddress()}>Load Address</Button>
+      <Divider style={styles.divider} />
 
 
-      <View style={{flexDirection : 'row', justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{fontWeight: 'bold'}}>Enable Monitoring Monitoring: </Text>
+      <View style={{flexDirection : 'row', justifyContent: 'center', alignItems: 'center' , padding: 4}}>
+        <Text style={{fontWeight: 'bold'}}>Enable Daily Monitoring: </Text>
         <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
       </View>
 
@@ -144,4 +142,4 @@ function SettingsScreen() {
     </View>
   );
 }
-export default SettingsScreen;
+export default MonitorScreen;

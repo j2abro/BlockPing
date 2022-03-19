@@ -6,7 +6,7 @@ import { View, FlatList, SafeAreaView, StatusBar, ScrollView,
         StyleSheet, TouchableOpacity, Image, ImageBackground, Modal as RNModal,
         Dialog as RNDialog } from 'react-native';
 import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
-        DataTable, Card, FAB } from 'react-native-paper';
+        DataTable, Card, FAB, Divider } from 'react-native-paper';
 import { createAccount, getTxsForAccount, getApprovalsForTxs, getContractName,
         anotherApproach, filterSettledApprovals } from '../crypto/blockchain';
 
@@ -118,7 +118,7 @@ function MainScreen({navigation}) {
         }
         else {
           msg = 'Found ' + result.tx_count + ' tranactions and ' + result.ap_count + ' approvals for account. ';
-          msg = msg + '\n\nScan will continue to ping for additional blockchain transaction inforation.';
+          msg = msg + 'Scanning for additional transaction data...';
         }
         presentAlert('Results', msg)
 
@@ -192,24 +192,14 @@ function MainScreen({navigation}) {
       };
 
     return (
-        <View style={{paddingBottom: 120}} /* Pad so tab doesn't hide table */ >
+      <SafeAreaView style={{flex: 1}}>
+        <View style={{paddingBottom: 5}} /* Pad so tab doesn't hide table */ >
 
-        <RNModal visible={displayTXDetailVisible} onDismiss={hideTXDetailModal}
-          contentContainerStyle={{backgroundColor: 'blue', padding: 60}}>
-          <SafeAreaView>
-            <ScrollView>
-              <View>
-                <DisplayTXDetail row={TXContent}/>
-                <Button mode="contained" onPress={() => hideTXDetailModal()}>close</Button>
-              </View>
-              </ScrollView>
-          </SafeAreaView>
-        </RNModal>
-
-        <View style={{flexDirection : 'row'}}>
-            <Button style={{flex: 1}} mode="outlined" onPress={() => getFilteredTableList()}>{filterButtonTitle}</Button>
-            <Button style={{flex: 1}} mode="outlined" loading={ isScanning } disabled={ isScanning } onPress={() => startScan()}>Scan</Button>
-            <Button style={{flex: 1}} mode="outlined" icon="qrcode-scan" onPress={() => setOpenQRScanner(true) } >Address</Button>
+        <View style={{ padding: 8}}>
+          <Text style={{fontWeight: 'bold' }}>Daily Approval Scan: </Text>
+          <Text>
+            Scan blockchain for open token approvals - where you have given a contract authority to spend from your account.
+          </Text>
         </View>
 
         <View>
@@ -223,6 +213,16 @@ function MainScreen({navigation}) {
                 style={{fontSize: 12}}
             />
         </View>
+
+        <View style={{padding : 4}}/>
+        <View style={{flexDirection : 'row'}}>
+          <Button style={{flex: 1}} mode="outlined" icon="qrcode-scan" onPress={() => setOpenQRScanner(true) } >Address</Button>
+          <Button style={{flex: 1}} mode="outlined" loading={ isScanning } disabled={ isScanning } onPress={() => startScan()}>Scan</Button>
+          <Button style={{flex: 1}} mode="outlined" onPress={() => getFilteredTableList()}>{filterButtonTitle}</Button>
+        </View>
+
+
+
 
         <RNModal visible={openQRScanner} >
           <View style={styles.QRScrollViewStyle}>
@@ -261,7 +261,7 @@ function MainScreen({navigation}) {
                 key={item.ap_count}
                 onPress={() => { onRowSelect(item.ap_count) }}
               >
-                <DataTable.Cell style={styles.first}>
+                <DataTable.Cell>
                 <View style={{flexDirection : 'column'}}>
                   <Text>{item.utcdatetime.split(' ')[0]}</Text>
                   <Text>{item.utcdatetime.split(' ')[1]}</Text>
@@ -286,13 +286,33 @@ function MainScreen({navigation}) {
               selectPageDropdownLabel={'Rows per page'}
             />
           </DataTable>
+          <Divider style={styles.divider} />
 
           <View style={{ height: 200, backgroundColor: 'transparent' }}  /* Pad */ />
-
           </ScrollView>
-          <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
+
+
+          <RNModal visible={displayTXDetailVisible} onDismiss={hideTXDetailModal}
+            transparent='true'
+            contentContainerStyle={{backgroundColor: 'blue', padding: 4}}>
+            <SafeAreaView style={{flex: 1}}>
+
+              <ScrollView>
+                <View>
+                  <DisplayTXDetail row={TXContent}/>
+                  <Button mode="contained" onPress={() => hideTXDetailModal()}>close</Button>
+                </View>
+                </ScrollView>
+
+
+            </SafeAreaView>
+
+          </RNModal>
+
 
     </View /* END OF VIEW */>
+    <AlertDialogBox visible={alertIsVisible} onChangeVisible={setAlertIsVisible} title={alertTitle} message={alertMessage} />
+    </SafeAreaView>
     );
 }
 
