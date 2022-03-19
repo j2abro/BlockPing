@@ -10,7 +10,6 @@ import { TextInput, Button, Text, Portal, Modal, Dialog, Provider, Paragraph,
 import { createAccount, getTxsForAccount, getApprovalsForTxs, getContractName,
         anotherApproach, filterSettledApprovals } from '../crypto/blockchain';
 
-
 import DisplayTXDetail from '../components/DisplayTXDetail';
 import CONSTANTS from '../utils/Constants';
 import { trimString, AlertDialogBox, pretty_print, myTestTableData, sleep }
@@ -21,6 +20,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/FontAwesome'; ///MaterialIcons
+
+// Test addresses
+// const target1_addr = '0x0C9f12c725504253BfDAd26B764817B7c85f3c27' // zero
+const target1_addr = '0 xe2993904204ab04e9579a5bf0a847fc6dca1a830'; // orig 7
+// const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'; //j2
 
 tableDataFull = [];
 tableDataFiltered = [];
@@ -94,11 +98,9 @@ function MainScreen({navigation}) {
     }
   }
 
-  // const target1_addr = '0x0C9f12c725504253BfDAd26B764817B7c85f3c27' // zero
-  // const target1_addr = '0 xe2993904204ab04e9579a5bf0a847fc6dca1a830'; // orig 7
-  // const target1_addr = '0xa6c7f4cabbf2a5b3e640743ebc6c5c708edc9441'; //j2
   const startScan = () => {
     console.log('ACCOUNT ADDR:', accountAaddress);
+
     if(accountAaddress == null) {
       let msg = 'Enter Ethereum address by scanning the QR code, then tap \'Scan\'. ';
       presentAlert('Missing Address', msg)

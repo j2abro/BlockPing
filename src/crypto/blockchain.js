@@ -72,6 +72,12 @@ export function getTxsForAccount(user_account_number) {
         const url  = `${CONSTANTS.ETHERSCAN_API_URL}?module=account&action=txlist&address=${user_account_number}&startblock=0&endblock=99999999&page=1&offset=1000&sort=asc&apikey=${CONSTANTS.ETHERSCAN_API_KEY}`;
         axios.get(url)
             .then(result => {
+                let return_status = result.data.message;
+                // if(return_status == 'NOTOK') {
+                //   console.log('ERROR - return:', return_status);
+                //   return;
+                // }
+                console.log('RESULT', result);
                 tx_count = 0;
                 ap_count = 0;
                 approvals = [];
@@ -79,7 +85,7 @@ export function getTxsForAccount(user_account_number) {
                 contract_and_input_all_objects = []
 
                 txs = result.data.result;
-                console.log('Get Account Data:', result.data.message);
+                console.log('Get Account Data:', return_status);
 
                 // Build list of 'Approvals' (from single request)
                 for(tx_id in txs) {
