@@ -196,7 +196,7 @@ function MainScreen({navigation}) {
         <View style={{paddingBottom: 5}} /* Pad so tab doesn't hide table */ >
 
         <View style={{ padding: 8}}>
-          <Text style={{fontWeight: 'bold' }}>Daily Approval Scan: </Text>
+          <Text style={{fontWeight: 'bold' }}>Approval Scan: </Text>
           <Text>
             Scan blockchain for open token approvals - where you have given a contract authority to spend from your account.
           </Text>
