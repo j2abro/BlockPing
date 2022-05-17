@@ -4,40 +4,32 @@ BlockChain security scan app.
 
 ## Description
 
-Implements various APIs to get risk data and alerts about smart contracts and addresses.
+IoS app (React Native). Implements various APIs to get risk data and alerts about smart contracts and addresses.
+ - Etherscan
+ - Ethers
+ - Web3.js
+ - Infura
+
+This is on the app store: https://apps.apple.com/us/app/blockping/id1615147827
 
 ## Getting Started
 
 ### Dependencies
-
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+React Native: This app is built for IoS and has not yet been deployed to Android.
 
 ### Installing
 
-* Clone repo
-* Install dependencies
-
-### Executing program
-
-Running (in two windows)
-```
-npx react-native start
-npx react-native run-ios
-```
+Clone repo
+Install dependencies
+Deploy with XCode
 
 
-## Help
+## Example Deployment
 
-TBD.
-```
-TBD
-```
 
 ## Version History
 
-* 1.0 Buid 4
-    * First app store upload
+Version 0.1
 
 
 ## Acknowledgments
