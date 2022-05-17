@@ -44,9 +44,9 @@ const InfoModalContent = (props) => {
         <Text>
           This searches the real-time Forta (forta.org) threat feed, which is similar to a traditional security
           intrusion detection system (IDS) in that it monitors the blockchain for adverse events. We filter those
-          events for any alerts that are relavent to the address you provide. This address can be any individual
+          events for any alerts that are relevant to the address you provide. This address can be any individual
           address or a contract address. The top 20 DEX contract addresses are included in the 'Select Address' drop-down
-          menu. If you select the first item (QR Scanned Address) it will scan based on the addrss you scanned on the
+          menu. If you select the first item (QR Scanned Address) it will scan based on the address you scanned on the
           'Scan' tab.
         </Text>
         <Divider style={styles.divider}/>
