@@ -31,8 +31,8 @@ const abiDecoder = require('abi-decoder');
 // const Tx = require('ethereumjs-tx').Transaction;
 // const ethers = require("ethers");
 
-const testnet_url  = 'https://ropsten.infura.io/v3/62bfebbc85964c33b44e2491504153bc';
-const mainnet_url  = 'https://mainnet.infura.io/v3/62bfebbc85964c33b44e2491504153bc';
+const testnet_url  = 'https://ropsten.infura.io/v3/<ADD KEY>';
+const mainnet_url  = 'https://mainnet.infura.io/v3/<ADD KEY>';
 const ganache_url  = 'http://localhost:8545';
 
 const testnet_acct = '0xfbb61b8b98a59fbc4bd79c23212addbefaeb289f';
@@ -42,8 +42,6 @@ const blogMainnet_acct = '0x90e63c3d53E0Ea496845b7a03ec7548B70014A91';
 url  = mainnet_url;
 acct = testnet_acct;
 const web3 = new Web3(url);
-
-
 
 // maybe need to promisify
 export function isWeb3Listening() {
