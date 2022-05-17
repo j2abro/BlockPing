@@ -37,8 +37,8 @@ menu. If you select the first item (QR Scanned Address) it will scan based on th
 
 ### Privacy:
 
-We don't connect to your wallet and have no access to your private key. This only utilizes your public address,
-which we don't log. No information is logged beyond basic usage statistics and app debugging information.
+BlockPing doesn't require a wallet connection and has no access to private keys. This only utilizes a public address,
+which is not logged. No information is logged beyond basic usage statistics and app debugging information.
 
 
 ## Implementation
@@ -49,7 +49,7 @@ IoS app (React Native). Implements various APIs to get risk data and alerts abou
  - Web3.js
  - Infura
 
-This is on the app store: https://apps.apple.com/us/app/blockping/id1615147827
+BlockPing on the app store: https://apps.apple.com/us/app/blockping/id1615147827
 
 ## Getting Started
 
