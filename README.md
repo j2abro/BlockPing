@@ -42,5 +42,8 @@ TBD
 
 ## Acknowledgments
 
+APIs
+* [Covalent](https://www.covalenthq.com/docs/api/#/0/0/USD/1)
+
 Inspiration
 * [Etherscan Token Approvals](https://etherscan.io/tokenapprovalchecker)
