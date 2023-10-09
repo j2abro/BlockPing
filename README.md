@@ -8,7 +8,7 @@ BlockPing is a collection of a few security tools that identify security risks
 for individual Ethereum addresses (accounts and smart contracts). This is an early version experimenting
 with the integration of real-time blockchain data feeds, while providing a framework for rapid integration
 of additional tests. Any feedback is appreciated: j2abro@gmail.com.
-Project on hold as I focus on other projects.
+Project on hold as I focus on other projects through 2024.
 
 ### Approval Scan:
 
